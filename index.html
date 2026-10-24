@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corazón Usemista | Tienda Oficial</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-cream: #fcf8f2;
+            --rose-soft: #f2cece;
+            --rose-dark: #d99b9b;
+            --text-dark: #3a322f;
+            --green-usm: #1b4332;
+            --white: #ffffff;
+            --border-color: #ebdcd5;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Georgia, serif; }
+        body { background-color: var(--bg-cream); color: var(--text-dark); line-height: 1.6; }
+
+        /* Encabezado */
+        header { 
+            background-color: var(--white); 
+            padding: 18px 40px; 
+            border-bottom: 2px solid var(--rose-soft); 
+            position: sticky; top: 0; z-index: 100; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .logo { font-size: 26px; font-weight: bold; color: var(--text-dark); letter-spacing: 1.5px; font-family: Georgia, serif; }
+        .logo span { color: var(--rose-dark); }
+        
+        nav { display: flex; align-items: center; gap: 20px; }
+        nav button { background: none; border: none; font-size: 15px; cursor: pointer; color: var(--text-dark); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        nav button:hover { color: var(--rose-dark); }
+        
+        .cart-btn { 
+            background: var(--rose-soft); padding: 8px 18px; border-radius: 20px; font-weight: bold; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; gap: 8px; border: none;
+        }
+        .cart-badge { background: var(--green-usm); color: var(--white); border-radius: 50%; padding: 2px 8px; font-size: 12px; }
+
+        /* Banner Principal */
+        .hero { 
+            background: linear-gradient(rgba(252, 248, 242, 0.92), rgba(242, 206, 206, 0.45)), url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80') center/cover; 
+            text-align: center; padding: 50px 20px; border-bottom: 1px solid var(--rose-soft); 
+        }
+        .hero h1 { font-size: 38px; color: var(--text-dark); font-family: Georgia, serif; margin-bottom: 8px; }
+        .hero p { font-size: 16px; color: #666; font-style: italic; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+        /* Filtros de Navegación */
+        .filters { display: flex; justify-content: center; gap: 12px; margin-bottom: 35px; flex-wrap: wrap; }
+        .filter-btn { 
+            padding: 10px 22px; border: 1.5px solid var(--rose-dark); background: var(--white); color: var(--text-dark); border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.3s; 
+        }
+        .filter-btn.active, .filter-btn:hover { background: var(--rose-soft); border-color: var(--rose-dark); }
+
+        /* Estructura de Secciones y Colecciones */
+        .main-collection-title { font-size: 28px; color: var(--green-usm); font-family: Georgia, serif; margin: 40px 0 20px 0; border-bottom: 3px solid var(--green-usm); padding-bottom: 8px; }
+        
+        .section-block { margin-bottom: 35px; background: var(--white); padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .section-title { font-size: 20px; color: var(--text-dark); font-family: Georgia, serif; border-bottom: 2px solid var(--rose-soft); padding-bottom: 8px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
+        .product-card { 
+            background: var(--bg-cream); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; 
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(217, 155, 155, 0.25); }
+        .product-img-wrapper { width: 100%; height: 250px; overflow: hidden; background: #fff; }
+        .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .product-card:hover .product-img { transform: scale(1.05); }
+        
+        .product-info { padding: 16px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+        .product-tag { font-size: 11px; text-transform: uppercase; color: var(--rose-dark); font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
+        .product-name { font-size: 16px; font-weight: bold; color: var(--text-dark); margin-bottom: 6px; font-family: Georgia, serif; }
+        .product-price { font-size: 17px; font-weight: bold; color: var(--green-usm); }
+        .view-btn-hint { margin-top: 10px; background: var(--rose-soft); color: var(--text-dark); text-align: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+
+        /* Modal Detalle de Producto */
+        .modal-product { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-product-content { background: var(--white); width: 100%; max-width: 880px; border-radius: 16px; overflow: hidden; display: flex; flex-direction: row; max-height: 90vh; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 26px; cursor: pointer; color: var(--text-dark); z-index: 10; font-weight: bold; }
+
+        .modal-gallery { width: 55%; background: var(--bg-cream); padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; border-right: 1px solid var(--border-color); overflow-y: auto; }
+        .modal-main-img { width: 100%; max-height: 360px; object-fit: contain; border-radius: 8px; }
+        .modal-thumbs { display: flex; gap: 10px; }
+        .thumb-img { width: 65px; height: 65px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
+        .thumb-img.active { border-color: var(--rose-dark); }
+
+        .modal-details { width: 45%; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
+        .modal-title { font-size: 22px; font-family: Georgia, serif; color: var(--text-dark); margin-bottom: 6px; }
+        .modal-desc { font-size: 13px; color: #666; margin-bottom: 15px; }
+        .modal-price { font-size: 22px; font-weight: bold; color: var(--green-usm); margin-bottom: 15px; }
+
+        .option-group { margin-bottom: 14px; }
+        .option-group label { display: block; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; color: var(--text-dark); }
+        .select-input { width: 100%; padding: 9px; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 13px; background: var(--bg-cream); }
+
+        .add-cart-btn { background: var(--rose-soft); color: var(--text-dark); border: 1.5px solid var(--rose-dark); width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .add-cart-btn:hover { background: var(--rose-dark); color: var(--white); }
+
+        /* Modal Carrito */
+        .cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 1050; justify-content: center; align-items: center; padding: 20px; }
+        .cart-content { background: var(--white); width: 100%; max-width: 520px; border-radius: 16px; padding: 25px; position: relative; max-height: 85vh; overflow-y: auto; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .cart-item-title { font-weight: bold; font-size: 13px; }
+        .cart-item-sub { font-size: 12px; color: #777; }
+        .checkout-btn { background: #25d366; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+
+        /* Modal Bienvenida (Opcional Cierre) */
+        .welcome-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); display: flex; justify-content: center; align-items: center; z-index: 1200; }
+        .welcome-card { background: var(--white); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; border: 2px solid var(--rose-soft); position: relative; }
+        .welcome-card h2 { font-family: Georgia, serif; color: var(--text-dark); margin-bottom: 8px; }
+        .welcome-card input { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-cream); }
+        .claim-btn { background: var(--rose-soft); color: var(--text-dark); border: 1px solid var(--rose-dark); padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        /* Panel de Fundadora Privado */
+        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 1300; overflow-y: auto; padding: 20px; }
+        .admin-box { background: var(--white); max-width: 880px; margin: 30px auto; padding: 25px; border-radius: 16px; position: relative; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: var(--bg-cream); padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid var(--rose-dark); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { border: 1px solid var(--border-color); padding: 9px; text-align: left; }
+        th { background: var(--rose-soft); color: var(--text-dark); }
+
+        @media (max-width: 768px) {
+            .modal-product-content { flex-direction: column; max-height: 95vh; }
+            .modal-gallery, .modal-details { width: 100%; }
+            .modal-gallery { border-right: none; border-bottom: 1px solid var(--border-color); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MODAL CUPÓN DE BIENVENIDA (NO OBLIGATORIO) -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-card">
+            <span class="close-modal" onclick="closeWelcomeModal()">&times;</span>
+            <h2>Corazón Usemista ✨</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Regístrate con tus datos simples para obtener un <strong>30% de descuento</strong> en tu primera compra.</p>
+            <form id="welcomeForm">
+                <input type="text" id="regName" placeholder="Nombre" required>
+                <input type="text" id="regLastName" placeholder="Apellido" required>
+                <input type="email" id="regEmail" placeholder="Correo Electrónico" required>
+                <button type="submit" class="claim-btn">Obtener 30% OFF</button>
+            </form>
+            <button onclick="closeWelcomeModal()" style="background:none; border:none; color:#888; text-decoration:underline; font-size:12px; margin-top:12px; cursor:pointer;">Continuar sin registrarme</button>
+        </div>
+    </div>
+
+    <!-- ENCABEZADO -->
+    <header>
+        <div class="logo">CORAZÓN <span>USEMISTA</span></div>
+        <nav>
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Catálogo</button>
+            <button onclick="openAdminPanel()">Panel Fundadora</button>
+            <button class="cart-btn" onclick="openCart()">
+                🛒 Carrito <span class="cart-badge" id="cartCount">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- BANNER HERO -->
+    <div class="hero">
+        <h1>Corazón Usemista</h1>
+        <p>Prendas con identidad y orgullo para cada facultad y carrera universitaria.</p>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="container">
+        <!-- FILTROS -->
+        <div class="filters">
+            <button class="filter-btn active" onclick="applyFilter('all', this)">Todo el Catálogo</button>
+            <button class="filter-btn" onclick="applyFilter('camisa', this)">Camisas ($15)</button>
+            <button class="filter-btn" onclick="applyFilter('hoodie', this)">Hoodies ($25)</button>
+        </div>
+
+        <div id="catalogDisplay"></div>
+    </div>
+
+    <!-- MODAL DETALLE DE PRODUCTO -->
+    <div class="modal-product" id="productModal">
+        <div class="modal-product-content">
+            <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            
+            <div class="modal-gallery">
+                <img id="modalImgMain" src="" alt="Producto" class="modal-main-img">
+                <div class="modal-thumbs">
+                    <img id="modalThumbFront" src="" alt="Frente" class="thumb-img active" onclick="switchModalImage('front')">
+                    <img id="modalThumbBack" src="" alt="Atrás" class="thumb-img" onclick="switchModalImage('back')">
+                </div>
+                <span style="font-size: 11px; color: #888;">Selecciona la miniatura para cambiar la vista (frente/espalda)</span>
+            </div>
+
+            <div class="modal-details">
+                <div>
+                    <h2 class="modal-title" id="modalTitle">Nombre del Producto</h2>
+                    <p class="modal-desc" id="modalDesc">Descripción adaptada a la facultad o colección.</p>
+                    <div class="modal-price" id="modalPrice">$0.00</div>
+
+                    <div class="option-group">
+                        <label for="modalSize">Talla:</label>
+                        <select id="modalSize" class="select-input">
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M" selected>M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                            <option value="XXXL">XXXL</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="modalQty">Cantidad:</label>
+                        <select id="modalQty" class="select-input">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="modalPayment">Método de Pago:</label>
+                        <select id="modalPayment" class="select-input">
+                            <option value="Pago Móvil">Pago Móvil</option>
+                            <option value="Divisas">Divisas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="add-cart-btn" onclick="addToCartCurrent()">Añadir al Carrito</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CARRITO -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <span class="close-modal" onclick="closeCart()">&times;</span>
+            <h2 style="font-family: Georgia, serif; margin-bottom: 15px;">Tu Carrito de Pedidos</h2>
+            <div id="cartItemsList"></div>
+            <div style="margin-top: 15px; font-size: 18px; font-weight: bold; text-align: right; color: var(--green-usm);" id="cartTotalText">
+                Total: $0.00
+            </div>
+            <button class="checkout-btn" onclick="processWhatsAppCheckout()">Comprar por WhatsApp 📲</button>
+        </div>
+    </div>
+
+    <!-- PANEL DE FUNDADORA PRIVADO -->
+    <div class="admin-modal" id="adminModal">
+        <div class="admin-box">
+            <span class="close-modal" onclick="closeAdminPanel()">&times;</span>
+            <h2 style="font-family: Georgia, serif; color: var(--text-dark);">Panel Privado de Fundadora</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Visitas a la Web</h3>
+                    <p id="statVisits" style="font-size: 22px; font-weight: bold;">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Usuarios Registrados</h3>
+                    <p id="statRegisters" style="font-size: 22px; font-weight: bold;">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Clics en Productos</h3>
+                    <p id="statClicks" style="font-size: 22px; font-weight: bold;">0</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 18px;">Ventas Mes a Mes</h3>
+            <div style="background: var(--bg-cream); padding: 12px; border-radius: 8px; margin: 10px 0;">
+                <canvas id="salesChart" height="110"></canvas>
+            </div>
+
+            <h3 style="margin-top: 18px;">Registro de Datos de Clientes</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Correo Electrónico</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONTADOR DE VISITAS
+        let visitCounter = localStorage.getItem('corazon_visits') ? parseInt(localStorage.getItem('corazon_visits')) + 1 : 1;
+        localStorage.setItem('corazon_visits', visitCounter);
+
+        // IMÁGENES REPRESENTATIVAS EXTRAÍDAS DEL CATÁLOGO
+        const catalogImages = {
+            identidad_c_f: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
+            identidad_c_b: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80",
+            identidad_h_f: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80",
+            identidad_h_b: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=600&q=80",
+
+            faces_c_f: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
+            faces_c_b: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80",
+            faces_h_f: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80",
+            faces_h_b: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=600&q=80",
+
+            derecho_c_f: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=600&q=80",
+            derecho_c_b: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80",
+            derecho_h_f: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=600&q=80",
+            derecho_h_b: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80",
+
+            ing_c_f: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80",
+            ing_c_b: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=600&q=80",
+            ing_h_f: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80",
+            ing_h_b: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=600&q=80",
+
+            odon_c_f: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80",
+            odon_c_b: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=600&q=80",
+            odon_h_f: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80",
+            odon_h_b: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=600&q=80",
+
+            farm_c_f: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
+            farm_c_b: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80",
+            farm_h_f: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=600&q=80",
+            farm_h_b: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80"
+        };
+
+        // ESTRUCTURA COMPLETA DE COLECCIONES Y CARRERAS
+        const storeDatabase = [
+            {
+                mainCollection: "COLECCIÓN IDENTIDAD",
+                subSections: [
+                    {
+                        title: "Colección Identidad (Emblemáticos)",
+                        items: [
+                            { id: "id_leones_c", type: "camisa", name: "Camisa 'Los Tres Leones'", desc: "Diseño minimalista institucional con los leones emblemáticos en la espalda.", price: 15, imgFront: catalogImages.identidad_c_f, imgBack: catalogImages.identidad_c_b },
+                            { id: "id_leones_h", type: "hoodie", name: "Hoodie 'Los Tres Leones'", desc: "Hoodie de alta calidad con el arte de los Leones en la espalda.", price: 25, imgFront: catalogImages.identidad_h_f, imgBack: catalogImages.identidad_h_b },
+                            { id: "id_virgen_c", type: "camisa", name: "Camisa 'Virgencita USM'", desc: "Edición especial con el diseño de la Virgencita en la espalda.", price: 15, imgFront: catalogImages.identidad_c_f, imgBack: catalogImages.identidad_c_b },
+                            { id: "id_virgen_h", type: "hoodie", name: "Hoodie 'Virgencita USM'", desc: "Hoodie institucional con la ilustración de la Virgen.", price: 25, imgFront: catalogImages.identidad_h_f, imgBack: catalogImages.identidad_h_b }
+                        ]
+                    }
+                ]
+            },
+            {
+                mainCollection: "COLECCIÓN DE FACULTADES",
+                subSections: [
+                    {
+                        title: "Facultad de FACES",
+                        items: [
+                            { id: "faces_adm_c", type: "camisa", name: "Camisa FACES - Administración", desc: "Diseño para la Escuela de Administración.", price: 15, imgFront: catalogImages.faces_c_f, imgBack: catalogImages.faces_c_b },
+                            { id: "faces_adm_h", type: "hoodie", name: "Hoodie FACES - Administración", desc: "Hoodie sobrio oficial de Administración.", price: 25, imgFront: catalogImages.faces_h_f, imgBack: catalogImages.faces_h_b },
+                            { id: "faces_cont_c", type: "camisa", name: "Camisa FACES - Contaduría", desc: "Camisa institucional de Contaduría Pública.", price: 15, imgFront: catalogImages.faces_c_f, imgBack: catalogImages.faces_c_b },
+                            { id: "faces_cont_h", type: "hoodie", name: "Hoodie FACES - Contaduría", desc: "Hoodie para estudiantes de Contaduría.", price: 25, imgFront: catalogImages.faces_h_f, imgBack: catalogImages.faces_h_b },
+                            { id: "faces_eco_c", type: "camisa", name: "Camisa FACES - Economía", desc: "Identidad para la Escuela de Economía.", price: 15, imgFront: catalogImages.faces_c_f, imgBack: catalogImages.faces_c_b },
+                            { id: "faces_eco_h", type: "hoodie", name: "Hoodie FACES - Economía", desc: "Hoodie abrigado representativo de Economía.", price: 25, imgFront: catalogImages.faces_h_f, imgBack: catalogImages.faces_h_b },
+                            { id: "faces_cs_c", type: "camisa", name: "Camisa FACES - Comunicación Social", desc: "Diseño fresco para Comunicación Social.", price: 15, imgFront: catalogImages.faces_c_f, imgBack: catalogImages.faces_c_b },
+                            { id: "faces_cs_h", type: "hoodie", name: "Hoodie FACES - Comunicación Social", desc: "Hoodie exclusivo para Comunicadores.", price: 25, imgFront: catalogImages.faces_h_f, imgBack: catalogImages.faces_h_b }
+                        ]
+                    },
+                    {
+                        title: "Facultad de DERECHO",
+                        items: [
+                            { id: "der_der_c", type: "camisa", name: "Camisa DERECHO - Derecho", desc: "Elegancia clásica para la Escuela de Derecho.", price: 15, imgFront: catalogImages.derecho_c_f, imgBack: catalogImages.derecho_c_b },
+                            { id: "der_der_h", type: "hoodie", name: "Hoodie DERECHO - Derecho", desc: "Hoodie institucional para la Facultad de Derecho.", price: 25, imgFront: catalogImages.derecho_h_f, imgBack: catalogImages.derecho_h_b },
+                            { id: "der_ei_c", type: "camisa", name: "Camisa DERECHO - Estudios Internacionales", desc: "Branding para la carrera de Estudios Internacionales.", price: 15, imgFront: catalogImages.derecho_c_f, imgBack: catalogImages.derecho_c_b },
+                            { id: "der_ei_h", type: "hoodie", name: "Hoodie DERECHO - Estudios Internacionales", desc: "Hoodie abrigado de Estudios Internacionales.", price: 25, imgFront: catalogImages.derecho_h_f, imgBack: catalogImages.derecho_h_b }
+                        ]
+                    },
+                    {
+                        title: "Facultad de INGENIERÍA Y ARQUITECTURA",
+                        items: [
+                            { id: "ing_civ_c", type: "camisa", name: "Camisa - Ing. Civil", desc: "Camisa representativa para Ingeniería Civil.", price: 15, imgFront: catalogImages.ing_c_f, imgBack: catalogImages.ing_c_b },
+                            { id: "ing_civ_h", type: "hoodie", name: "Hoodie - Ing. Civil", desc: "Hoodie para estudiantes de Ingeniería Civil.", price: 25, imgFront: catalogImages.ing_h_f, imgBack: catalogImages.ing_h_b },
+                            { id: "ing_ind_c", type: "camisa", name: "Camisa - Ing. Industrial", desc: "Diseño para Ingeniería Industrial.", price: 15, imgFront: catalogImages.ing_c_f, imgBack: catalogImages.ing_c_b },
+                            { id: "ing_ind_h", type: "hoodie", name: "Hoodie - Ing. Industrial", desc: "Hoodie de alta densidad para Industrial.", price: 25, imgFront: catalogImages.ing_h_f, imgBack: catalogImages.ing_h_b },
+                            { id: "ing_sis_c", type: "camisa", name: "Camisa - Ing. en Sistemas", desc: "Estética limpia para Ingeniería en Sistemas.", price: 15, imgFront: catalogImages.ing_c_f, imgBack: catalogImages.ing_c_b },
+                            { id: "ing_sis_h", type: "hoodie", name: "Hoodie - Ing. en Sistemas", desc: "Hoodie oficial para Sistemas.", price: 25, imgFront: catalogImages.ing_h_f, imgBack: catalogImages.ing_h_b },
+                            { id: "ing_tel_c", type: "camisa", name: "Camisa - Ing. en Telecomunicaciones", desc: "Identidad para Telecomunicaciones.", price: 15, imgFront: catalogImages.ing_c_f, imgBack: catalogImages.ing_c_b },
+                            { id: "ing_tel_h", type: "hoodie", name: "Hoodie - Ing. en Telecomunicaciones", desc: "Hoodie para Ingeniería en Telecomunicaciones.", price: 25, imgFront: catalogImages.ing_h_f, imgBack: catalogImages.ing_h_b },
+                            { id: "ing_arq_c", type: "camisa", name: "Camisa - Arquitectura", desc: "Diseño minimalista para la carrera de Arquitectura.", price: 15, imgFront: catalogImages.ing_c_f, imgBack: catalogImages.ing_c_b },
+                            { id: "ing_arq_h", type: "hoodie", name: "Hoodie - Arquitectura", desc: "Hoodie cómodo con detalles para Arquitectura.", price: 25, imgFront: catalogImages.ing_h_f, imgBack: catalogImages.ing_h_b }
+                        ]
+                    },
+                    {
+                        title: "Facultad de ODONTOLOGÍA",
+                        items: [
+                            { id: "odon_c", type: "camisa", name: "Filipina / Camisa - Odontología", desc: "Filipina scrub de mujer con iconografía odontológica.", price: 15, imgFront: catalogImages.odon_c_f, imgBack: catalogImages.odon_c_b },
+                            { id: "odon_h", type: "hoodie", name: "Hoodie - Odontología", desc: "Hoodie abrigado con los símbolos clínicos de Odontología.", price: 25, imgFront: catalogImages.odon_h_f, imgBack: catalogImages.odon_h_b }
+                        ]
+                    },
+                    {
+                        title: "Facultad de FARMACIA",
+                        items: [
+                            { id: "farm_c", type: "camisa", name: "Filipina / Camisa - Farmacia", desc: "Scrub de mujer con diseño farmacéutico en la espalda.", price: 15, imgFront: catalogImages.farm_c_f, imgBack: catalogImages.farm_c_b },
+                            { id: "farm_h", type: "hoodie", name: "Hoodie - Farmacia", desc: "Hoodie en tono crema con grabado de Farmacia.", price: 25, imgFront: catalogImages.farm_h_f, imgBack: catalogImages.farm_h_b }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // POPUP Y DESCUENTO NO OBLIGATORIO
+        const welcomeOverlay = document.getElementById('welcomeOverlay');
+        if(localStorage.getItem('corazon_user_seen')) {
+            welcomeOverlay.style.display = 'none';
+        }
+
+        function closeWelcomeModal() {
+            localStorage.setItem('corazon_user_seen', 'true');
+            welcomeOverlay.style.display = 'none';
+        }
+
+        document.getElementById('welcomeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const lastName = document.getElementById('regLastName').value;
+            const email = document.getElementById('regEmail').value;
+            const date = new Date().toLocaleDateString();
+
+            let users = JSON.parse(localStorage.getItem('corazon_users_list') || '[]');
+            users.push({ date, name, lastName, email });
+            localStorage.setItem('corazon_users_list', JSON.stringify(users));
+            localStorage.setItem('corazon_active_discount', 'true');
+
+            closeWelcomeModal();
+            alert(`¡Excelente ${name}! Tu cupón del 30% de descuento ha sido activado.`);
+        });
+
+        // DESPLIEGUE DEL CATÁLOGO
+        function renderStoreUI(filter = 'all') {
+            const container = document.getElementById('catalogDisplay');
+            container.innerHTML = '';
+
+            storeDatabase.forEach(mainCol => {
+                let mainHeaderAdded = false;
+
+                mainCol.subSections.forEach(subSec => {
+                    const filteredItems = subSec.items.filter(i => filter === 'all' || i.type === filter);
+                    if(filteredItems.length === 0) return;
+
+                    if(!mainHeaderAdded) {
+                        const h1 = document.createElement('h1');
+                        h1.className = 'main-collection-title';
+                        h1.innerText = mainCol.mainCollection;
+                        container.appendChild(h1);
+                        mainHeaderAdded = true;
+                    }
+
+                    const secDiv = document.createElement('div');
+                    secDiv.className = 'section-block';
+
+                    let html = `<h2 class="section-title">${subSec.title}</h2><div class="products-grid">`;
+
+                    filteredItems.forEach(prod => {
+                        html += `
+                            <div class="product-card" onclick="openProductModal('${prod.id}')">
+                                <div class="product-img-wrapper">
+                                    <img src="${prod.imgFront}" alt="${prod.name}" class="product-img">
+                                </div>
+                                <div class="product-info">
+                                    <div>
+                                        <div class="product-tag">${prod.type}</div>
+                                        <div class="product-name">${prod.name}</div>
+                                    </div>
+                                    <div>
+                                        <div class="product-price">$${prod.price}.00</div>
+                                        <div class="view-btn-hint">Ver Detalle / Tallas</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div>`;
+                    secDiv.innerHTML = html;
+                    container.appendChild(secDiv);
+                });
+            });
+        }
+
+        function applyFilter(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderStoreUI(type);
+        }
+
+        // DETALLE DE PRODUCTO Y CLICS
+        let selectedProduct = null;
+        function openProductModal(prodId) {
+            // Contabilizar clic
+            let clicks = JSON.parse(localStorage.getItem('corazon_clicks_map') || '{}');
+            clicks[prodId] = (clicks[prodId] || 0) + 1;
+            localStorage.setItem('corazon_clicks_map', JSON.stringify(clicks));
+
+            // Buscar producto
+            for(let col of storeDatabase) {
+                for(let sub of col.subSections) {
+                    let found = sub.items.find(i => i.id === prodId);
+                    if(found) { selectedProduct = found; break; }
+                }
+            }
+
+            if(!selectedProduct) return;
+
+            document.getElementById('modalTitle').innerText = selectedProduct.name;
+            document.getElementById('modalDesc').innerText = selectedProduct.desc;
+            document.getElementById('modalPrice').innerText = `$${selectedProduct.price}.00`;
+
+            document.getElementById('modalImgMain').src = selectedProduct.imgFront;
+            document.getElementById('modalThumbFront').src = selectedProduct.imgFront;
+            document.getElementById('modalThumbBack').src = selectedProduct.imgBack;
+
+            document.getElementById('modalThumbFront').classList.add('active');
+            document.getElementById('modalThumbBack').classList.remove('active');
+
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function switchModalImage(side) {
+            if(!selectedProduct) return;
+            if(side === 'front') {
+                document.getElementById('modalImgMain').src = selectedProduct.imgFront;
+                document.getElementById('modalThumbFront').classList.add('active');
+                document.getElementById('modalThumbBack').classList.remove('active');
+            } else {
+                document.getElementById('modalImgMain').src = selectedProduct.imgBack;
+                document.getElementById('modalThumbBack').classList.add('active');
+                document.getElementById('modalThumbFront').classList.remove('active');
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        // CARRITO Y PROCESO
+        let shoppingCart = JSON.parse(localStorage.getItem('corazon_cart_items') || '[]');
+        updateCartBadge();
+
+        function addToCartCurrent() {
+            if(!selectedProduct) return;
+
+            const size = document.getElementById('modalSize').value;
+            const qty = parseInt(document.getElementById('modalQty').value);
+            const payment = document.getElementById('modalPayment').value;
+
+            shoppingCart.push({
+                id: selectedProduct.id,
+                name: selectedProduct.name,
+                price: selectedProduct.price,
+                size: size,
+                qty: qty,
+                payment: payment
+            });
+
+            localStorage.setItem('corazon_cart_items', JSON.stringify(shoppingCart));
+            updateCartBadge();
+            closeProductModal();
+            openCart();
+        }
+
+        function updateCartBadge() {
+            document.getElementById('cartCount').innerText = shoppingCart.length;
+        }
+
+        function openCart() {
+            const list = document.getElementById('cartItemsList');
+            list.innerHTML = '';
+            let total = 0;
+
+            if(shoppingCart.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">El carrito está vacío.</p>';
+            } else {
+                shoppingCart.forEach((item, index) => {
+                    const subtotal = item.price * item.qty;
+                    total += subtotal;
+                    list.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <div class="cart-item-title">${item.name}</div>
+                                <div class="cart-item-sub">Talla: ${item.size} | Cantidad: ${item.qty} | Pago: ${item.payment}</div>
+                            </div>
+                            <div style="font-weight: bold; color: var(--green-usm);">$${subtotal}.00</div>
+                            <button onclick="removeFromCart(${index})" style="background: none; border: none; color: red; cursor: pointer; font-size: 16px; margin-left: 10px;">&times;</button>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('cartTotalText').innerText = `Total: $${total}.00`;
+            document.getElementById('cartModal').style.display = 'flex';
+        }
+
+        function removeFromCart(index) {
+            shoppingCart.splice(index, 1);
+            localStorage.setItem('corazon_cart_items', JSON.stringify(shoppingCart));
+            updateCartBadge();
+            openCart();
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        function processWhatsAppCheckout() {
+            if(shoppingCart.length === 0) {
+                alert("Agrega un producto al carrito primero.");
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('corazon_users_list') || '[]');
+            const user = users.length > 0 ? users[users.length - 1] : { name: "Cliente", lastName: "Usemista", email: "No registrado" };
+            const hasDiscount = localStorage.getItem('corazon_active_discount') === 'true' ? "30% OFF Aplicado" : "No aplica";
+
+            let msg = `Hola, ¡Quiero procesar una compra en Corazón Usemista!%0A%0A`;
+
+            shoppingCart.forEach((item) => {
+                msg += `*Producto:* ${item.name}%0A*Talla:* ${item.size}%0A*Cantidad:* ${item.qty}%0A*Método de Pago:* ${item.payment}%0A*Descuento Aplicado:* ${hasDiscount}%0A%0A`;
+            });
+
+            msg += `*Datos del Comprador:*%0A- Nombre: ${user.name}%0A- Apellido: ${user.lastName}%0A- Correo: ${user.email}`;
+
+            // Registrar venta
+            let total = shoppingCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            let sales = JSON.parse(localStorage.getItem('corazon_sales_map') || '{"Octubre": 0}');
+            sales["Octubre"] = (sales["Octubre"] || 0) + total;
+            localStorage.setItem('corazon_sales_map', JSON.stringify(sales));
+
+            // Limpiar carrito
+            shoppingCart = [];
+            localStorage.removeItem('corazon_cart_items');
+            updateCartBadge();
+            closeCart();
+
+            window.open(`https://wa.me/584241309372?text=${msg}`, '_blank');
+        }
+
+        // PANEL DE FUNDADORA PRIVADO (CLAVE: 041169)
+        let chartInstance = null;
+        function openAdminPanel() {
+            const pass = prompt("Ingresa el código exclusivo de Fundadora:");
+            if(pass === "041169") {
+                document.getElementById('adminModal').style.display = 'block';
+                loadAdminStats();
+            } else if(pass !== null) {
+                alert("Código de acceso incorrecto.");
+            }
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
+        function loadAdminStats() {
+            document.getElementById('statVisits').innerText = localStorage.getItem('corazon_visits') || 1;
+            
+            const users = JSON.parse(localStorage.getItem('corazon_users_list') || '[]');
+            document.getElementById('statRegisters').innerText = users.length;
+
+            const clicks = JSON.parse(localStorage.getItem('corazon_clicks_map') || '{}');
+            let totalClicks = Object.values(clicks).reduce((a, b) => a + b, 0);
+            document.getElementById('statClicks').innerText = totalClicks;
+
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+            users.forEach(u => {
+                tbody.innerHTML += `<tr><td>${u.date}</td><td>${u.name}</td><td>${u.lastName}</td><td>${u.email}</td></tr>`;
+            });
+
+            const sales = JSON.parse(localStorage.getItem('corazon_sales_map') || '{"Enero": 0, "Febrero": 0, "Marzo": 0, "Abril": 0, "Mayo": 0, "Junio": 0, "Julio": 0, "Agosto": 0, "Septiembre": 0, "Octubre": 160, "Noviembre": 0, "Diciembre": 0}');
+            
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(sales),
+                    datasets: [{
+                        label: 'Ventas Mensuales ($)',
+                        data: Object.values(sales),
+                        backgroundColor: '#d99b9b',
+                        borderColor: '#3a322f',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        // Render inicial
+        renderStoreUI();
+    </script>
+</body>
+</html>
